@@ -9,17 +9,16 @@
       
      @Slf4j
      public class DefaultQueueExecutor implements QueueExecutor {
-	@Override
-	public void execute(QueueData queueData) {
-	    log.info("DefaultQueueExecutor executor: queueData={}", queueData);
-
-	}
+		@Override
+		public void execute(QueueData queueData) {
+			log.info("DefaultQueueExecutor executor: queueData={}", queueData);
+		}
      }
      
      
      @Slf4j
      public class DefaultExecuteFailCallback implements ExecuteFailCallback {
-	@Override
+     	@Override
 	public void callback(QueueData queueData, Exception e) {
 	    log.error("DefaultExecuteFailCallback callback : queueData={}, msg={}, ", queueData, e.getMessage(), e);
 	}
