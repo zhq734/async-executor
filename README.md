@@ -18,10 +18,10 @@
      
      @Slf4j
      public class DefaultExecuteFailCallback implements ExecuteFailCallback {
-     	@Override
-	public void callback(QueueData queueData, Exception e) {
-	    log.error("DefaultExecuteFailCallback callback : queueData={}, msg={}, ", queueData, e.getMessage(), e);
-	}
+     		@Override
+		public void callback(QueueData queueData, Exception e) {
+	    		log.error("DefaultExecuteFailCallback callback : queueData={}, msg={}, ", queueData, e.getMessage(), e);
+		}
      }
      
      
