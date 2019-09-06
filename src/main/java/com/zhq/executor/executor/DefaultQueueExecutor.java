@@ -15,8 +15,5 @@ public class DefaultQueueExecutor implements QueueExecutor {
 	public void execute(QueueData queueData) {
 		log.info("DefaultQueueExecutor executor: queueData={}", queueData);
 		
-		
-		
-		
 	}
 }
