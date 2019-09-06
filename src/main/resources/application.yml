@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: async-executor
+
+log:
+  path: /usr/local/tomcat/logs/executor
+  max:
+    history: 7
+    filesize: 20
+
+server:
+  port: 8012
+#  profiles:
+#    active: test
+
+
+management:
+  port: 8012
+  security:
+    enabled: true
+
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    com.closeli.face.dao : debug
+
+queue:
+  config:
+    threadCount: 4
+

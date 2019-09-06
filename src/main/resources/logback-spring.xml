@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+  <include resource="org/springframework/boot/logging/logback/base.xml"/>
+  
+  <springProperty scope="context" name="logPath" source="log.path"></springProperty>
+  <springProperty scope="context" name="logMaxHistory" source="log.max.history"></springProperty>
+  <springProperty scope="context" name="logMaxFilesize" source="log.max.filesize"></springProperty>
+  <property name="logPath" value="/usr/local/tomcat/logs/executor"/>
+  
+  <property name="CONSOLE_LOG_PATTERN" value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr([${faceapi:-},%X{X-B3-TraceId:-},%X{X-B3-SpanId:-},%X{X-Span-Export:-}]){yellow} %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}" />
+  
+  <appender name="CONSOLE-APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+      <charset>utf8</charset>
+    </encoder>
+  </appender>
+  
+  <!-- appender -->
+  <appender name="DEFAULT-APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${logPath}/executor.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${logPath}/executor.log.%d{yyyy-MM-dd}.%i.bz2</fileNamePattern>
+      <maxHistory>${logMaxHistory}</maxHistory>
+      <timeBasedFileNamingAndTriggeringPolicy
+              class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>${logMaxFilesize}mb</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+    </rollingPolicy>
+    <encoder charset="UTF-8">
+      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>INFO</level>
+    </filter>
+  </appender>
+  
+  <!-- appender -->
+  <appender name="ERROR-APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${logPath}/faceapi.error.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${logPath}/executor.error.log.%d{yyyy-MM-dd}.%i.bz2</fileNamePattern>
+      <maxHistory>${logMaxHistory}</maxHistory>
+      <timeBasedFileNamingAndTriggeringPolicy
+              class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>${logMaxFilesize}mb</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+    </rollingPolicy>
+    <encoder charset="UTF-8">
+      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter"><!-- 只打印错误日志 -->
+      <level>ERROR</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+  </appender>
+  
+  
+  <appender name="MQ-ERROR-APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${logPath}/mq/mqhander.error.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${logPath}/mq/mqhander.error.log.%d{yyyy-MM-dd}.%i.bz2</fileNamePattern>
+      <maxHistory>${logMaxHistory}</maxHistory>
+      <timeBasedFileNamingAndTriggeringPolicy
+              class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>${logMaxFilesize}mb</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+    </rollingPolicy>
+    <encoder charset="UTF-8">
+      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter"><!-- 只打印错误日志 -->
+      <level>ERROR</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+  </appender>
+  
+  <appender name="Abstract-APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${logPath}/requestLog.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${logPath}/request/requestLog_%d{yyyyMMddHH}_%i.log
+      </fileNamePattern>
+      <maxHistory>${logMaxHistory}</maxHistory>
+      <timeBasedFileNamingAndTriggeringPolicy
+              class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>${logMaxFilesize}mb</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+    </rollingPolicy>
+    <encoder charset="UTF-8">
+      <Pattern>%d{ddHHmmss}\region\t%msg%n</Pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>INFO</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+  </appender>
+  <appender name="CONSOLE-LOGSTASH" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${logPath}/executor.json</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${logPath}.executor.json.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+      <maxHistory>${logMaxHistory}</maxHistory>
+      <timeBasedFileNamingAndTriggeringPolicy
+              class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>${logMaxFilesize}mb</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+    </rollingPolicy>
+    <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+      <providers>
+        <timestamp>
+          <timeZone>UTC</timeZone>
+        </timestamp>
+        <pattern>
+          <pattern>{ "severity": "%level", "service": "${springAppName:-}", "trace":
+            "%X{X-B3-TraceId:-}", "span": "%X{X-B3-SpanId:-}", "exportable": "%X{X-Span-Export:-}",
+            "pid": "${PID:-}", "thread": "%thread", "class": "%logger{40}", "rest": "%msg"}
+          </pattern>
+        </pattern>
+      </providers>
+    </encoder>
+  </appender>
+  
+  <!-- root -->
+  <root level="info">
+    <appender-ref ref="ERROR-APPENDER"/>
+    <appender-ref ref="CONSOLE-LOGSTASH"/>
+    <appender-ref ref="DEFAULT-APPENDER"/>
+  </root>
+</configuration>

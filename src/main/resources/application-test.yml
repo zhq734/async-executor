@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: face-api
+#  profiles:
+#    active: test
+
+management:
+  port: 8012
+  security:
+    enabled: true
+
+log:
+  path: /usr/local/tomcat/logs/faceapi
+  max:
+    history: 7
+    filesize: 20
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+       com.closeli.face.dao : debug
+
+server:
+  port: 8012
+
