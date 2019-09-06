@@ -2,9 +2,8 @@
 异步执行器 采用队列的方式，异步执行数据，提高接口的执行速度
 
 # demo
-public Object test() {
-		
-		
+				
+      public Object test() {
 		QueueData queueData = new QueueData();
 		
 		Map<String, String> data = new HashMap<>();
