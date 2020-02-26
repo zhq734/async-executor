@@ -2,7 +2,6 @@ package com.zhq.executor.core;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import java.util.Date;
 
@@ -13,7 +12,6 @@ import java.util.Date;
  */
 @Data
 @NoArgsConstructor
-@ToString
 public class QueueData<T> {
 	
 	/**
@@ -35,6 +33,16 @@ public class QueueData<T> {
 	 * 执行时间
 	 */
 	private Date executeDate;
+	
+	/**
+	 * 数据标识：用于设置调用频率限制的
+	 */
+	private String cacheKey;
+	
+	/**
+	 * 数据执行的有效期（即多少时间内只能执行一次）
+	 */
+	private Long expireTime;
 	
 	/**
 	 * 请求的数据

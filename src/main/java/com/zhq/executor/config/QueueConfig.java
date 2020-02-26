@@ -18,6 +18,9 @@ import org.springframework.stereotype.Component;
 @ToString
 public class QueueConfig {
 	
+	/**
+	 * 线程池的线程数量
+	 */
 	private int threadCount = 4;
 	
 }

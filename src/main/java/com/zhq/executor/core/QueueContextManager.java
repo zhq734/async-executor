@@ -55,7 +55,10 @@ public class QueueContextManager {
 	}
 	
 	private Cache<UnsignedInteger, QueueContext> contextCache = null;
-
+	
+	/**
+	 * 初始化contextCache
+	 */
 	private void initCache() {
 		contextCache = CacheBuilder.newBuilder()
 				.concurrencyLevel(concurrencyLevel)
@@ -67,16 +70,19 @@ public class QueueContextManager {
 		
 	}
 	
+	/**
+	 * contextCache 缓存移除监听
+	 */
 	private RemovalListener<UnsignedInteger, QueueContext> contextRemovalListener = (removalNotification) -> {
 		
 		try {
 			log.info("request reqNum: {} is {}", removalNotification.getKey(), removalNotification.getCause());
 			switch (removalNotification.getCause()) {
 				case EXPLICIT:   // 手动删除
-					log.error("request reqNum: {} is deleted", removalNotification.getKey());
+					log.info("request reqNum: {} is deleted", removalNotification.getKey());
 					break;
 				case REPLACED:    // 手动替换
-					log.error("request reqNum: {} is replaced", removalNotification.getKey());
+					log.info("request reqNum: {} is replaced", removalNotification.getKey());
 					break;
 				case COLLECTED:    // 被垃圾回收
 					pushContext(removalNotification.getKey(), removalNotification.getValue());
@@ -91,7 +97,7 @@ public class QueueContextManager {
 					}
 					break;
 				case SIZE:         // 由于缓存大小限制
-					log.error("context cache is full!!!");
+					log.info("context cache is full!!!");
 					pushContext(removalNotification.getKey(), removalNotification.getValue());
 					break;
 				default: break;
@@ -102,13 +108,22 @@ public class QueueContextManager {
 		}
 	};
 	
-	
+	/**
+	 * 往缓存中添加数据
+	 * @param seqNum
+	 * @param queueContext
+	 */
 	private void pushContext(UnsignedInteger seqNum, QueueContext queueContext) {
 		if (Objects.nonNull(queueContext)) {
 			contextCache.put(seqNum, queueContext);
 		}
 	}
 	
+	/**
+	 * 往缓存中移除数据
+	 * @param seqNum
+	 * @return
+	 */
 	private synchronized QueueContext popContext(UnsignedInteger seqNum) {
 		QueueContext queueContext = contextCache.getIfPresent(seqNum);
 		contextCache.invalidate(seqNum);
@@ -116,6 +131,12 @@ public class QueueContextManager {
 		return queueContext;
 	}
 	
+	/**
+	 * 往缓存中添加数据
+	 * @param queueData
+	 * @param queueCallback
+	 * @return
+	 */
 	public UnsignedInteger addContext(QueueData queueData, QueueExecutor queueCallback) {
 		UnsignedInteger seqNum = QueueContextSeqNumUtil.getSeqNum();
 		
@@ -125,20 +146,30 @@ public class QueueContextManager {
 		return seqNum;
 	}
 	
-	
+	/**
+	 * 获取指定序列号的缓存数据，并将其移除
+	 * @param seqNum
+	 * @return
+	 */
 	public QueueContext getContext(UnsignedInteger seqNum) {
 		QueueContext queueContext = popContext(seqNum);
 		
 		return queueContext;
 	}
 	
+	/**
+	 * 调用执行
+	 * @param queueContext
+	 */
 	public static void executeContext(QueueContext queueContext) {
 		
 		if (Objects.nonNull(queueContext)) {
 			QueueExecutor queueCallback = queueContext.getQueueCallback();
 			
 			if (Objects.nonNull(queueCallback)) {
-				queueContext.getQueueData().setExecuteDate(new Date());
+				if (Objects.nonNull(queueContext.getQueueData())) {
+					queueContext.getQueueData().setExecuteDate(new Date());
+				}
 				queueCallback.execute(queueContext.getQueueData());
 			}
 		}
