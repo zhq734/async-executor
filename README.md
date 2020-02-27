@@ -24,6 +24,22 @@
 		}
      }
      
+
+# 项目上如何使用
+    maven: 添加依赖包
+    <dependency>
+      <groupId>com.zhq.executor</groupId>
+      <artifactId>async-executor</artifactId>
+      <version>1.0.1</version>
+    </dependency>
+    
+    springboot 上在Application.java上增加该路径的扫描
+    @ComponentScan(basePackages = {...., ...., "com.zhq.executor"})
+    
+    springMVC 上则在xml配置文件中添加扫描路径
+    <context:component-scan base-package="com.zhq.executor"></context:component-scan>
+    
+    通过以上方式即可以直接在您的代码上使用该异步处理器的功能
      
     
 # demo
