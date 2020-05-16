@@ -2,6 +2,7 @@ package com.zhq.executor.consumer;
 
 
 import com.google.common.primitives.UnsignedInteger;
+import com.zhq.executor.config.MetricsConfig;
 import com.zhq.executor.config.QueueConfig;
 import com.zhq.executor.core.QueueContainer;
 import com.zhq.executor.core.QueueContext;
@@ -19,6 +20,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author: zhenghq
@@ -32,8 +35,17 @@ public class DataConsumer implements IConsumer {
 	/**
 	 * 队列配置
 	 */
+	private static QueueConfig queueConfig;
+	
+	/**
+	 * 清除的时候，进行加锁操作
+	 */
+	private volatile static boolean hasLock = false;
+	
 	@Resource
-	private QueueConfig queueConfig;
+	public void setQueueConfig(QueueConfig queueConfig) {
+		DataConsumer.queueConfig = queueConfig;
+	}
 	
 	/**
 	 * 阻塞队列
@@ -52,7 +64,27 @@ public class DataConsumer implements IConsumer {
 	
 	@Override
 	public void setQueueContainer(QueueContainer faceQueue) {
-		executorService = Executors.newFixedThreadPool(queueConfig.getThreadCount());
+		LinkedBlockingQueue linkedBlockingQueue = new LinkedBlockingQueue<Runnable>(queueConfig.getMaxWaitLineCount());
+		executorService = new ThreadPoolExecutor(queueConfig.getThreadCount(), queueConfig.getThreadCount(),
+				0L, TimeUnit.MILLISECONDS,
+				linkedBlockingQueue, Executors.defaultThreadFactory(),
+				(Runnable r, ThreadPoolExecutor executor) -> {
+					hasLock = true;
+					/**
+					 * 如果队列满了，则清理队列
+					 */
+					try {
+						int queueSize = linkedBlockingQueue.size() + 1;
+						log.warn("linkedBlockingQueue is full, will clear: {}", queueSize);
+						
+						linkedBlockingQueue.clear();
+						QueueContextManager.getInstance().clearContext();
+						MetricsConfig.outQueueCounter.labels(MetricsConfig.CLEAR_LABEL).inc(queueSize);
+					} finally {
+						hasLock = false;
+					}
+					
+				});
 	}
 	
 	/**
@@ -61,6 +93,17 @@ public class DataConsumer implements IConsumer {
 	 * @param queueCallback
 	 */
 	public static void addQueueData(QueueData queueData, QueueExecutor queueCallback) {
+		/**
+		 * 如果加锁了，则延迟1秒
+		 */
+		if (hasLock) {
+			log.warn("current hasLock will sleep 1000 ms");
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		UnsignedInteger seqNum = QueueContextManager.getInstance().addContext(queueData, queueCallback);
 		try {
 			blockingQueue.put(seqNum);
@@ -85,19 +128,21 @@ public class DataConsumer implements IConsumer {
 					try {
 						queueContext = QueueContextManager.getInstance().getContext(seqNumInner);
 						if (Objects.isNull(queueContext)) {
+							MetricsConfig.outQueueCounter.labels(MetricsConfig.NOHANDLE_LABEL).inc();
 							return 0;
 						}
 						queueData = queueContext.getQueueData();
 						if (Objects.nonNull(queueData)) {
-							String cacheKey = queueData.getCacheKey();
 							Long expireTime = queueData.getExpireTime();
+							String cacheKey = queueData.getCacheKey();
 							
 							/**
 							 * 如果在缓存中，则进行处理
 							 */
 							if (Objects.nonNull(cacheKey) && expiryMap.get(cacheKey) != null
 									&& queueData.getCurrentRetryCount() == 0) {
-								log.info("The current operation time is still within the expiration time！no handle: {}", queueData);
+								log.warn("The current operation time is still within the expiration time！no handle: {}", queueData);
+								MetricsConfig.outQueueCounter.labels(MetricsConfig.NOHANDLE_LABEL).inc();
 								return 0;
 							}
 							
@@ -108,12 +153,9 @@ public class DataConsumer implements IConsumer {
 							/**
 							 * 如果该数据带了过期时间和缓存key, 则加入缓存, 没配置时间则默认2分钟执行一次
 							 */
-							if (Objects.nonNull(cacheKey) && cacheKey.length() > 0) {
-								if (Objects.nonNull(expireTime) && expireTime > 0) {
-									expiryMap.put(cacheKey, Byte.parseByte("0"), expireTime);
-								} else {
-									expiryMap.put(cacheKey, Byte.parseByte("0"));
-								}
+							if (Objects.nonNull(cacheKey) && cacheKey.length() > 0
+									&& Objects.nonNull(expireTime) && expireTime > 0) {
+								expiryMap.put(cacheKey, Byte.parseByte("0"), expireTime);
 							}
 						}
 						
@@ -124,6 +166,7 @@ public class DataConsumer implements IConsumer {
 							try {
 								boolean addSuccess = queueData.addFailCount();
 								if (addSuccess) {
+									MetricsConfig.inQueueCounter.labels(MetricsConfig.RETRY_LABEL).inc();
 									addQueueData(queueData, queueContext.getQueueCallback());
 								} else {
 									if (Objects.nonNull(queueData.getFailCallback())) {

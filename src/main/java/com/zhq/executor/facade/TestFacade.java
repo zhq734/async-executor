@@ -5,12 +5,22 @@ import com.zhq.executor.consumer.DataConsumer;
 import com.zhq.executor.core.QueueData;
 import com.zhq.executor.core.QueueExecutor;
 import com.zhq.executor.executor.DefaultQueueExecutor;
+import com.zhq.executor.util.TextFormat;
+import io.prometheus.client.CollectorRegistry;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author: zhenghq
@@ -136,6 +146,27 @@ public class TestFacade {
 
 		
 		return "aaaaa";
+	}
+	
+	
+	private CollectorRegistry registry = CollectorRegistry.defaultRegistry;
+	@RequestMapping("/metrics")
+	public void metrics(HttpServletResponse response, HttpServletRequest request) throws IOException {
+		response.setStatus(200);
+		response.setContentType("text/plain; version=0.0.4; charset=utf-8");
+		PrintWriter writer = response.getWriter();
+		try {
+			TextFormat.write004(writer, this.registry.filteredMetricFamilySamples(this.parse(request)));
+			writer.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			writer.close();
+		}
+	}
+	private Set<String> parse(HttpServletRequest req) {
+		String[] includedParam = req.getParameterValues("name[]");
+		return (Set) (includedParam == null ? Collections.emptySet() : new HashSet(Arrays.asList(includedParam)));
 	}
 	
 }

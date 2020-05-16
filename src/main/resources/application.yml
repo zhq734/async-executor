@@ -27,5 +27,5 @@ logging:
 
 queue:
   config:
-    threadCount: 4
+    threadCount: 40
 

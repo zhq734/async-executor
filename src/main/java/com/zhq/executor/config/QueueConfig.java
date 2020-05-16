@@ -23,4 +23,14 @@ public class QueueConfig {
 	 */
 	private int threadCount = 4;
 	
+	/**
+	 * 默认最大的等待队列的长度
+	 */
+	private int maxWaitLineCount = 36000;
+	
+	/**
+	 * 最大的超时时间， 10s
+	 */
+	private int maxTimeout = 10000;
+	
 }

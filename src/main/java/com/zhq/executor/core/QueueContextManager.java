@@ -1,9 +1,10 @@
 package com.zhq.executor.core;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalListener;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.google.common.primitives.UnsignedInteger;
+import com.zhq.executor.config.MetricsConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
@@ -60,45 +61,44 @@ public class QueueContextManager {
 	 * 初始化contextCache
 	 */
 	private void initCache() {
-		contextCache = CacheBuilder.newBuilder()
-				.concurrencyLevel(concurrencyLevel)
+		contextCache = Caffeine.newBuilder()
 				.initialCapacity(initialCapacity)
 				.maximumSize(maximumSize)
 				.expireAfterWrite(duration, TimeUnit.SECONDS)
 				.removalListener(contextRemovalListener)
 				.build();
-		
 	}
 	
 	/**
 	 * contextCache 缓存移除监听
 	 */
-	private RemovalListener<UnsignedInteger, QueueContext> contextRemovalListener = (removalNotification) -> {
+	private RemovalListener<UnsignedInteger, QueueContext> contextRemovalListener = (key, value, cause) -> {
 		
 		try {
-			log.info("request reqNum: {} is {}", removalNotification.getKey(), removalNotification.getCause());
-			switch (removalNotification.getCause()) {
+			log.info("request reqNum: {} is {}", key, cause);
+			switch (cause) {
 				case EXPLICIT:   // 手动删除
-					log.info("request reqNum: {} is deleted", removalNotification.getKey());
 					break;
 				case REPLACED:    // 手动替换
-					log.info("request reqNum: {} is replaced", removalNotification.getKey());
 					break;
 				case COLLECTED:    // 被垃圾回收
-					pushContext(removalNotification.getKey(), removalNotification.getValue());
-					break;
-				case EXPIRED:      // 超时过期
-					QueueContext queueContext = removalNotification.getValue();
-					if (Objects.nonNull(queueContext)) {
-						QueueExecutor queueCallback = queueContext.getQueueCallback();
-						if (Objects.nonNull(queueCallback)) {
-							queueCallback.execute(queueContext.getQueueData());
-						}
+					if (Objects.nonNull(value)) {
+						addContext(value.getQueueData(), value.getQueueCallback());
 					}
 					break;
+				case EXPIRED:      // 超时过期
+					/**
+					 * 这边后续通过策略方式走
+					 * 判断是否是抛弃还是执行
+					 */
+					MetricsConfig.outQueueCounter.labels(MetricsConfig.EXPIRE_LABEL).inc();
+					executeContext(value);
+					break;
 				case SIZE:         // 由于缓存大小限制
-					log.info("context cache is full!!!");
-					pushContext(removalNotification.getKey(), removalNotification.getValue());
+					log.warn("context cache is full!!!");
+					if (Objects.nonNull(value)) {
+						addContext(value.getQueueData(), value.getQueueCallback());
+					}
 					break;
 				default: break;
 				
@@ -143,7 +143,24 @@ public class QueueContextManager {
 		QueueContext queueContext = new QueueContext(queueData, queueCallback);
 		pushContext(seqNum, queueContext);
 		
+		if (Objects.nonNull(queueData)) {
+			if (Objects.nonNull(queueData.getCacheKey())) {
+				MetricsConfig.inQueueCounter.labels(queueData.getCacheKey()).inc();
+			} else {
+				MetricsConfig.inQueueCounter.labels(MetricsConfig.DEFAULT_LABEL).inc();
+			}
+		} else {
+			MetricsConfig.inQueueCounter.labels(MetricsConfig.DEFAULT_LABEL).inc();
+		}
+		
 		return seqNum;
+	}
+	
+	/**
+	 * 清除缓存数据
+	 */
+	public void clearContext() {
+		contextCache.invalidateAll();
 	}
 	
 	/**
@@ -167,11 +184,29 @@ public class QueueContextManager {
 			QueueExecutor queueCallback = queueContext.getQueueCallback();
 			
 			if (Objects.nonNull(queueCallback)) {
-				if (Objects.nonNull(queueContext.getQueueData())) {
-					queueContext.getQueueData().setExecuteDate(new Date());
+				QueueData queueData = queueContext.getQueueData();
+				if (Objects.nonNull(queueData)) {
+					queueData.setExecuteDate(new Date());
+					
+					String cacheKey = queueData.getCacheKey();
+					if (Objects.nonNull(cacheKey)) {
+						MetricsConfig.outQueueCounter.labels(cacheKey).inc();
+					} else {
+						MetricsConfig.outQueueCounter.labels(MetricsConfig.DEFAULT_LABEL).inc();
+					}
+				} else {
+					MetricsConfig.outQueueCounter.labels(MetricsConfig.DEFAULT_LABEL).inc();
 				}
-				queueCallback.execute(queueContext.getQueueData());
+				
+				/**
+				 * 执行回调
+				 */
+				queueCallback.execute(queueData);
+			} else {
+				MetricsConfig.outQueueCounter.labels(MetricsConfig.NOHANDLE_LABEL).inc();
 			}
+		} else {
+			MetricsConfig.outQueueCounter.labels(MetricsConfig.NOHANDLE_LABEL).inc();
 		}
 		
 	}
