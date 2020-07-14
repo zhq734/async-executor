@@ -4,13 +4,16 @@ package com.zhq.executor.consumer;
 import com.google.common.primitives.UnsignedInteger;
 import com.zhq.executor.config.MetricsConfig;
 import com.zhq.executor.config.QueueConfig;
+import com.zhq.executor.constant.GlobalConstant;
 import com.zhq.executor.core.QueueContainer;
 import com.zhq.executor.core.QueueContext;
 import com.zhq.executor.core.QueueContextManager;
 import com.zhq.executor.core.QueueData;
 import com.zhq.executor.core.QueueExecutor;
+import com.zhq.executor.util.ExecutorThreadFactory;
 import com.zhq.executor.util.ExpiryMap;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -18,7 +21,6 @@ import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -67,7 +69,7 @@ public class DataConsumer implements IConsumer {
 		LinkedBlockingQueue linkedBlockingQueue = new LinkedBlockingQueue<Runnable>(queueConfig.getMaxWaitLineCount());
 		executorService = new ThreadPoolExecutor(queueConfig.getThreadCount(), queueConfig.getThreadCount(),
 				0L, TimeUnit.MILLISECONDS,
-				linkedBlockingQueue, Executors.defaultThreadFactory(),
+				linkedBlockingQueue, new ExecutorThreadFactory(GlobalConstant.THREAD_POOL_ID_PREFIX),
 				(Runnable r, ThreadPoolExecutor executor) -> {
 					hasLock = true;
 					/**
@@ -109,6 +111,30 @@ public class DataConsumer implements IConsumer {
 			blockingQueue.put(seqNum);
 		} catch (InterruptedException e) {
 			log.error("DataConsumer addQueueData error: {}", e.getMessage(), e);
+		}
+		
+	}
+	
+	/**
+	 * 添加同步队列
+	 * @param queueData
+	 * @param queueCallback
+	 */
+	public static void addSyncQueueData(QueueData queueData, QueueExecutor queueCallback) {
+		
+		if (queueData == null) {
+			queueData = new QueueData();
+		}
+		
+		synchronized (queueData) {
+			
+			try {
+				addQueueData(queueData, queueCallback);
+				queueData.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
 		}
 		
 	}
@@ -175,6 +201,13 @@ public class DataConsumer implements IConsumer {
 								}
 							} catch (Exception e1) {
 								log.error("execute fail callback error: {}, {}", e1.getMessage(), e1);
+							}
+						}
+					} finally {
+						MDC.clear();
+						if (queueData != null) {
+							synchronized (queueData) {
+								queueData.notifyAll();
 							}
 						}
 					}

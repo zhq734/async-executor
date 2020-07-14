@@ -21,7 +21,7 @@ public class QueueConfig {
 	/**
 	 * 线程池的线程数量
 	 */
-	private int threadCount = 4;
+	private int threadCount = 40;
 	
 	/**
 	 * 默认最大的等待队列的长度

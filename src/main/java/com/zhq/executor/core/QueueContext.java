@@ -14,6 +14,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class QueueContext {
 	
+	public static QueueContext getInstance() {
+		return new QueueContext();
+	}
+	
 	private QueueData queueData;
 	
 	private QueueExecutor queueCallback;

@@ -14,6 +14,10 @@ import java.util.Date;
 @NoArgsConstructor
 public class QueueData<T> {
 	
+	public static QueueData getInstance() {
+		return new QueueData();
+	}
+	
 	/**
 	 * 是否进行重试
 	 */

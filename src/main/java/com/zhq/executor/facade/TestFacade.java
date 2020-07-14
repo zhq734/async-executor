@@ -7,6 +7,7 @@ import com.zhq.executor.core.QueueExecutor;
 import com.zhq.executor.executor.DefaultQueueExecutor;
 import com.zhq.executor.util.TextFormat;
 import io.prometheus.client.CollectorRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author: zhenghq
@@ -29,7 +31,38 @@ import java.util.Set;
  */
 @RequestMapping
 @RestController
+@Slf4j
 public class TestFacade {
+	
+	private static AtomicInteger count = new AtomicInteger(0);
+	
+	@RequestMapping("/testSync")
+	public Object testSync() {
+		
+		QueueData queueData = new QueueData();
+		queueData.setData(count.incrementAndGet());
+		
+//		DataConsumer.addSyncQueueData(queueData, (data) -> {
+//
+//			System.out.println(data.getData() + "----->开始执行");
+////			try {
+////				Thread.sleep(5000);
+////			} catch (InterruptedException e) {
+////				e.printStackTrace();
+////			}
+//			System.out.println(data.getData() + "======>执行结束");
+//		});
+		
+		System.out.println(queueData.getData() + "----->开始执行");
+//		try {
+//			Thread.sleep(5000);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+		System.out.println(queueData.getData() + "======>执行结束");
+		
+		return queueData.getData();
+	}
 	
 	
 	@ResponseBody
@@ -64,7 +97,7 @@ public class TestFacade {
 		DataConsumer.addQueueData(queueData, new QueueExecutor() {
 			@Override
 			public void execute(QueueData queueData) {
-				System.out.println(queueData);
+				log.info("queueData: {}", queueData);
 				throw new RuntimeException("hahahahahahahahahaha");
 			}
 		});

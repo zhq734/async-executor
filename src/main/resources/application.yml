@@ -22,10 +22,8 @@ management:
 
 logging:
   config: classpath:logback-spring.xml
-  level:
-    com.closeli.face.dao : debug
 
 queue:
   config:
-    threadCount: 40
+    threadCount: 100
 

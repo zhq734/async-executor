@@ -6,8 +6,12 @@ import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.google.common.primitives.UnsignedInteger;
 import com.zhq.executor.config.MetricsConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +27,10 @@ public class QueueContextManager {
 	private int initialCapacity = 1000;
 	private long maximumSize = 100000;
 	private long duration = 30;
+	/**
+	 * 记录logback日志中的MDC信息
+	 */
+	private Map<UnsignedInteger, Map<String, String>> MDCInfoMap = new HashMap<>();
 	
 	private static QueueContextManager singleton = null;
 	
@@ -115,7 +123,12 @@ public class QueueContextManager {
 	 */
 	private void pushContext(UnsignedInteger seqNum, QueueContext queueContext) {
 		if (Objects.nonNull(queueContext)) {
+			if (Objects.isNull(contextCache)) {
+				initCache();
+			}
 			contextCache.put(seqNum, queueContext);
+			Map<String, String> currentMDCMap = MDC.getCopyOfContextMap();
+			MDCInfoMap.put(seqNum, currentMDCMap == null ? Collections.emptyMap() : currentMDCMap);
 		}
 	}
 	
@@ -127,6 +140,7 @@ public class QueueContextManager {
 	private synchronized QueueContext popContext(UnsignedInteger seqNum) {
 		QueueContext queueContext = contextCache.getIfPresent(seqNum);
 		contextCache.invalidate(seqNum);
+		MDC.setContextMap(MDCInfoMap.remove(seqNum));
 		
 		return queueContext;
 	}
@@ -161,6 +175,7 @@ public class QueueContextManager {
 	 */
 	public void clearContext() {
 		contextCache.invalidateAll();
+		MDCInfoMap.clear();
 	}
 	
 	/**
