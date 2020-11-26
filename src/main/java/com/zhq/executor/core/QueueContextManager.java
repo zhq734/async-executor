@@ -32,7 +32,7 @@ public class QueueContextManager {
 	 */
 	private Map<UnsignedInteger, Map<String, String>> MDCInfoMap = new HashMap<>();
 	
-	private static QueueContextManager singleton = null;
+	private volatile static QueueContextManager singleton = null;
 	
 	
 	private QueueContextManager() {
@@ -44,6 +44,8 @@ public class QueueContextManager {
 		this.initialCapacity = initialCapacity;
 		this.maximumSize = maximumSize;
 		this.duration = duration;
+		
+		initCache();
 	}
 	
 	public static QueueContextManager getInstance() {
@@ -55,7 +57,6 @@ public class QueueContextManager {
 			synchronized (QueueContextManager.class) {
 				if (singleton == null) {
 					singleton = new QueueContextManager(concurrencyLevel, initialCapacity, maximumSize, duration);
-					singleton.initCache();
 				}
 			}
 		}
@@ -69,6 +70,7 @@ public class QueueContextManager {
 	 * 初始化contextCache
 	 */
 	private void initCache() {
+		log.info("QueueContextManager initCache......");
 		contextCache = Caffeine.newBuilder()
 				.initialCapacity(initialCapacity)
 				.maximumSize(maximumSize)
