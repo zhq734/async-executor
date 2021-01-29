@@ -32,6 +32,10 @@ public class QueueContextManager {
 	 */
 	private Map<UnsignedInteger, Map<String, String>> MDCInfoMap = new HashMap<>();
 	
+	/**
+	 * 内容缓存对象
+	 */
+	private Cache<UnsignedInteger, QueueContext> contextCache = null;
 	
 	/**
 	 * 采用枚举类实现单例对象初始化
@@ -40,6 +44,7 @@ public class QueueContextManager {
 		INSTANCE;
 		private QueueContextManager instance;
 		
+		
 		InnerContext() {
 			this.instance = new QueueContextManager();
 		}
@@ -47,7 +52,7 @@ public class QueueContextManager {
 		private QueueContextManager getSingleton() {
 			return instance;
 		}
-		
+	
 	}
 	
 	public static QueueContextManager getInstance() {
@@ -57,37 +62,6 @@ public class QueueContextManager {
 	private QueueContextManager() {
 		initCache();
 	}
-	
-	
-//	private volatile static QueueContextManager singleton = null;
-//
-//
-//	private QueueContextManager(int concurrencyLevel, int initialCapacity, long maximumSize, long duration) {
-//		this.concurrencyLevel = concurrencyLevel;
-//		this.initialCapacity = initialCapacity;
-//		this.maximumSize = maximumSize;
-//		this.duration = duration;
-//
-//		initCache();
-//	}
-//
-//	public static QueueContextManager getInstance() {
-//		return getInstance(4, 1000, 100000, 30);
-//	}
-//
-//	public static QueueContextManager getInstance(int concurrencyLevel, int initialCapacity, long maximumSize, long duration) {
-//		if (singleton == null) {
-//			synchronized (QueueContextManager.class) {
-//				if (singleton == null) {
-//					singleton = new QueueContextManager(concurrencyLevel, initialCapacity, maximumSize, duration);
-//				}
-//			}
-//		}
-//
-//		return singleton;
-//	}
-	
-	private Cache<UnsignedInteger, QueueContext> contextCache = null;
 	
 	/**
 	 * 初始化contextCache
