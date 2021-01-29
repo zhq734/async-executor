@@ -42,24 +42,23 @@ public class TestFacade {
 		QueueData queueData = new QueueData();
 		queueData.setData(count.incrementAndGet());
 		
-//		DataConsumer.addSyncQueueData(queueData, (data) -> {
-//
-//			System.out.println(data.getData() + "----->开始执行");
-////			try {
-////				Thread.sleep(5000);
-////			} catch (InterruptedException e) {
-////				e.printStackTrace();
-////			}
-//			System.out.println(data.getData() + "======>执行结束");
-//		});
+		DataConsumer.addSyncQueueData(queueData, (data) -> {
+			System.out.println(data.getData() + "----->开始执行");
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			System.out.println(data.getData() + "======>执行结束");
+		});
 		
-		System.out.println(queueData.getData() + "----->开始执行");
+//		System.out.println(queueData.getData() + "----->开始执行");
 //		try {
 //			Thread.sleep(5000);
 //		} catch (InterruptedException e) {
 //			e.printStackTrace();
 //		}
-		System.out.println(queueData.getData() + "======>执行结束");
+//		System.out.println(queueData.getData() + "======>执行结束");
 		
 		return queueData.getData();
 	}
@@ -90,18 +89,32 @@ public class TestFacade {
 		
 		queueData.setData(data);
 		
-		queueData.setCacheKey("test001");
+//		queueData.setCacheKey("test001");
 		queueData.setExpireTime(60 * 1000L);
 		queueData.setFailCallback(new DefaultExecuteFailCallback());
+		
+//		DataConsumer.addQueueData(queueData, new QueueExecutor() {
+//			@Override
+//			public void execute(QueueData queueData) {
+//				log.info("queueData: {}", queueData);
+//				throw new RuntimeException("hahahahahahahahahaha");
+//			}
+//		});
+		
 		
 		DataConsumer.addQueueData(queueData, new QueueExecutor() {
 			@Override
 			public void execute(QueueData queueData) {
-				log.info("queueData: {}", queueData);
-				throw new RuntimeException("hahahahahahahahahaha");
+				log.info("queueData2: {}", queueData);
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				log.warn("=============结束啦");
+				
 			}
 		});
-		
 		
 		/*QueueData finalQueueData = queueData;
 		

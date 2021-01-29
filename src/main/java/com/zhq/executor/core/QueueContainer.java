@@ -7,8 +7,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author: zhenghq
@@ -19,7 +17,6 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class QueueContainer {
 	
-	private ExecutorService executorService = Executors.newCachedThreadPool();
 	@Autowired
 	List<IConsumer> consumerList;
 	
@@ -27,14 +24,9 @@ public class QueueContainer {
 	public void init() {
 		log.info("QueueContainer start init......");
 		consumerList.stream().forEach(consumer -> {
-			log.info("add consumer: {}", consumer.getClass().getSimpleName());
-			consumer.setQueueContainer(this);
-			Thread tc= new Thread(consumer, consumer.getClass().getSimpleName());
-			tc.start();
+			log.info("init consumer: {}", consumer.getClass().getSimpleName());
+			consumer.init();
 		});
 	}
 	
-	public ExecutorService getExecutorService() {
-		return executorService;
-	}
 }

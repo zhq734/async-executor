@@ -11,9 +11,5 @@ public class GlobalConstant {
 	
 	}
 	
-	/**
-	 * 线程池id前缀
-	 */
-	public static final String THREAD_POOL_ID_PREFIX = "DataConsumer";
 	
 }

@@ -32,37 +32,60 @@ public class QueueContextManager {
 	 */
 	private Map<UnsignedInteger, Map<String, String>> MDCInfoMap = new HashMap<>();
 	
-	private volatile static QueueContextManager singleton = null;
 	
-	
-	private QueueContextManager() {
-	
-	}
-	
-	private QueueContextManager(int concurrencyLevel, int initialCapacity, long maximumSize, long duration) {
-		this.concurrencyLevel = concurrencyLevel;
-		this.initialCapacity = initialCapacity;
-		this.maximumSize = maximumSize;
-		this.duration = duration;
+	/**
+	 * 采用枚举类实现单例对象初始化
+	 */
+	private enum InnerContext {
+		INSTANCE;
+		private QueueContextManager instance;
 		
-		initCache();
+		InnerContext() {
+			this.instance = new QueueContextManager();
+		}
+		
+		private QueueContextManager getSingleton() {
+			return instance;
+		}
+		
 	}
 	
 	public static QueueContextManager getInstance() {
-		return getInstance(4, 1000, 100000, 30);
+		return QueueContextManager.InnerContext.INSTANCE.getSingleton();
 	}
 	
-	public static QueueContextManager getInstance(int concurrencyLevel, int initialCapacity, long maximumSize, long duration) {
-		if (singleton == null) {
-			synchronized (QueueContextManager.class) {
-				if (singleton == null) {
-					singleton = new QueueContextManager(concurrencyLevel, initialCapacity, maximumSize, duration);
-				}
-			}
-		}
-		
-		return singleton;
+	private QueueContextManager() {
+		initCache();
 	}
+	
+	
+//	private volatile static QueueContextManager singleton = null;
+//
+//
+//	private QueueContextManager(int concurrencyLevel, int initialCapacity, long maximumSize, long duration) {
+//		this.concurrencyLevel = concurrencyLevel;
+//		this.initialCapacity = initialCapacity;
+//		this.maximumSize = maximumSize;
+//		this.duration = duration;
+//
+//		initCache();
+//	}
+//
+//	public static QueueContextManager getInstance() {
+//		return getInstance(4, 1000, 100000, 30);
+//	}
+//
+//	public static QueueContextManager getInstance(int concurrencyLevel, int initialCapacity, long maximumSize, long duration) {
+//		if (singleton == null) {
+//			synchronized (QueueContextManager.class) {
+//				if (singleton == null) {
+//					singleton = new QueueContextManager(concurrencyLevel, initialCapacity, maximumSize, duration);
+//				}
+//			}
+//		}
+//
+//		return singleton;
+//	}
 	
 	private Cache<UnsignedInteger, QueueContext> contextCache = null;
 	
