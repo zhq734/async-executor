@@ -5,7 +5,9 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.google.common.primitives.UnsignedInteger;
 import com.zhq.executor.config.MetricsConfig;
+import com.zhq.executor.register.ServiceDiscovery;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 
 import java.util.Collections;
@@ -200,6 +202,13 @@ public class QueueContextManager {
 			if (Objects.nonNull(queueCallback)) {
 				QueueData queueData = queueContext.getQueueData();
 				if (Objects.nonNull(queueData)) {
+					/**
+					 * 执行远程服务
+					 */
+					if (StringUtils.isNotBlank(queueData.getTipoc())) {
+						ServiceDiscovery.handleTask(queueData.getTipoc(), queueData.getData());
+					}
+					
 					queueData.setExecuteDate(new Date());
 					
 					String cacheKey = queueData.getCacheKey();

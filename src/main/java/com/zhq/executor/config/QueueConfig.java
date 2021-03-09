@@ -1,9 +1,7 @@
 package com.zhq.executor.config;
 
 import lombok.Data;
-import lombok.ToString;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,26 +9,26 @@ import org.springframework.stereotype.Component;
  * @date: 2019/9/6
  * @version: 1.0.0
  */
-@Configuration
-@ConfigurationProperties(prefix = "queue.config", ignoreInvalidFields = true)
 @Data
 @Component
-@ToString
 public class QueueConfig {
 	
 	/**
 	 * 线程池的线程数量
 	 */
+	@Value("${queue.config.threadCount:40}")
 	private int threadCount = 40;
 	
 	/**
 	 * 默认最大的等待队列的长度
 	 */
+	@Value("${queue.config.maxWaitLineCount:36000}")
 	private int maxWaitLineCount = 36000;
 	
 	/**
 	 * 最大的超时时间， 10s
 	 */
+	@Value("${queue.config.maxTimeout:10000}")
 	private int maxTimeout = 10000;
 	
 }

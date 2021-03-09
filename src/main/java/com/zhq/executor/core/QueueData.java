@@ -48,6 +48,8 @@ public class QueueData<T> {
 	 */
 	private Long expireTime;
 	
+	private String tipoc;
+	
 	/**
 	 * 请求的数据
 	 */

@@ -27,3 +27,12 @@ queue:
   config:
     threadCount: 100
 
+executor:
+  server:
+    center:
+      host: http://localhost:20790
+  client:
+    port: 20788
+    serviceId: async-excutor
+
+

@@ -18,6 +18,8 @@ import javax.annotation.Resource;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -43,6 +45,8 @@ public class DataConsumer implements IConsumer {
 		DataConsumer.queueConfig = queueConfig;
 	}
 	
+	private static final String _DEFAULT_TOPiC = "_default";
+	
 	/**
 	 * 清除的时候，进行加锁操作
 	 */
@@ -51,7 +55,7 @@ public class DataConsumer implements IConsumer {
 	/**
 	 * 判断是否已经在执行
 	 */
-	private static AtomicBoolean hasRunning = new AtomicBoolean(false);
+	private static ConcurrentMap<String, AtomicBoolean> runningMap = new ConcurrentHashMap<>();
 	
 	/**
 	 * 阻塞队列
@@ -110,15 +114,57 @@ public class DataConsumer implements IConsumer {
 				e.printStackTrace();
 			}
 		}
+		
 		UnsignedInteger seqNum = QueueContextManager.getInstance().addContext(queueData, queueCallback);
 		try {
+			runningMap.put(_DEFAULT_TOPiC, runningMap.getOrDefault(_DEFAULT_TOPiC, new AtomicBoolean(false)));
 			blockingQueue.put(seqNum);
-			execute();
+			execute(_DEFAULT_TOPiC, blockingQueue);
 		} catch (InterruptedException e) {
 			log.error("DataConsumer addQueueData error: {}", e.getMessage(), e);
 		}
+	}
+	
+	/**
+	 * 添加指定订阅的数据到执行队列
+	 * @param queueData
+	 * @param queueCallback
+	 */
+	protected static void addTopicQueueData(String topic, QueueData queueData, QueueExecutor queueCallback) {
+		/**
+		 * 如果加锁了，则延迟1秒
+		 */
+		if (hasLock.get()) {
+			log.warn("current hasLock will sleep 1000 ms");
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		try {
+			BlockingQueue blockingQueue = InnerCommand.getTopicQueue(topic);
+			if (blockingQueue == null) {
+				log.error("current topic not find Queue: {}", topic);
+				addQueueData(queueData, queueCallback);
+				return;
+			}
+			if (queueData == null) {
+				queueData = QueueData.getInstance();
+			}
+			
+			runningMap.put(topic, runningMap.getOrDefault(topic, new AtomicBoolean(false)));
+			queueData.setTipoc(topic);
+			UnsignedInteger seqNum = QueueContextManager.getInstance().addContext(queueData, queueCallback);
+			
+			blockingQueue.put(seqNum);
+			execute(topic, blockingQueue);
+		} catch (InterruptedException e) {
+			log.error("DataConsumer addTopicQueueData error: {}", e.getMessage(), e);
+		}
 		
 	}
+	
 	
 	/**
 	 * 添加同步队列
@@ -145,7 +191,12 @@ public class DataConsumer implements IConsumer {
 	/**
 	 * 执行代码
 	 */
-	private static void execute() {
+	private static void execute(String topic, BlockingQueue blockingQueue) {
+		AtomicBoolean hasRunning = runningMap.get(topic);
+		if (hasRunning == null) {
+			log.info("invild request execute!! topic={}", topic);
+			return;
+		}
 		if (!hasRunning.compareAndSet(false, true)) {
 			return;
 		}
@@ -157,11 +208,10 @@ public class DataConsumer implements IConsumer {
 				seqNum = (UnsignedInteger) blockingQueue.take();
 				
 				CompletableFuture.completedFuture(seqNum).thenApplyAsync(seqNumInner -> {
+					QueueContext queueContext = QueueContextManager.getInstance().getContext(seqNumInner);
 					log.info("正在消费DataConsumer: {}", seqNumInner);
-					QueueContext queueContext = null;
 					QueueData queueData = null;
 					try {
-						queueContext = QueueContextManager.getInstance().getContext(seqNumInner);
 						if (Objects.isNull(queueContext)) {
 							MetricsConfig.outQueueCounter.labels(MetricsConfig.NOHANDLE_LABEL).inc();
 							return 0;
@@ -201,8 +251,12 @@ public class DataConsumer implements IConsumer {
 							try {
 								boolean addSuccess = queueData.addFailCount();
 								if (addSuccess) {
-									MetricsConfig.inQueueCounter.labels(MetricsConfig.RETRY_LABEL).inc();
-									addQueueData(queueData, queueContext.getQueueCallback());
+									String currentTopic = queueData.getTipoc();
+									if (Objects.isNull(currentTopic)) {
+										addQueueData(queueData, queueContext.getQueueCallback());
+									} else {
+										addTopicQueueData(currentTopic, queueData, queueContext.getQueueCallback());
+									}
 								} else {
 									if (Objects.nonNull(queueData.getFailCallback())) {
 										queueData.getFailCallback().callback(queueData, new RuntimeException(e.getMessage()));
@@ -228,5 +282,6 @@ public class DataConsumer implements IConsumer {
 			
 		}
 		hasRunning.set(false);
+		runningMap.put(topic, hasRunning);
 	}
 }
