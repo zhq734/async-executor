@@ -6,12 +6,14 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.5.13.RELEASE</version>
+		<!--<version>1.5.13.RELEASE</version>-->
+		<version>2.3.7.RELEASE</version>
 	</parent>
 	
 	<groupId>com.zhq.executor</groupId>
 	<artifactId>async-executor</artifactId>
-	<version>1.0.5-SNAPSHOT</version>
+	<!--<version>1.0.6-SNAPSHOT</version>-->
+	<version>1.0.6</version>
 	<packaging>jar</packaging>
 	
 	<name>async executor</name>
@@ -28,6 +30,9 @@
 		<lombok.version>1.16.18</lombok.version>
 		<caffeine.version>2.8.1</caffeine.version>
 		<prometheus.version>0.0.23</prometheus.version>
+		<commons.lang3.version>3.3.2</commons.lang3.version>
+		<!--<spring.version>4.3.12.RELEASE</spring.version>-->
+		<spring.version>5.2.12.RELEASE</spring.version>
 	</properties>
 	
 	<dependencies>
@@ -88,20 +93,60 @@
 		</dependency>
 		
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+		
+		<!--<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
-			<version>4.3.12.RELEASE</version>
-		</dependency>
+			<version>${spring.version}</version>
+		</dependency>-->
 		
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aspects</artifactId>
-			<version>4.3.12.RELEASE</version>
+			<version>${spring.version}</version>
 		</dependency>
+		
+		<!--<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webflux</artifactId>
+			<version>5.3.3</version>
+		</dependency>-->
+		
+		
+		
+		<!--<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-core</artifactId>
+			<version>3.2.6.RELEASE</version>
+		</dependency>-->
+		
+		
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>22.0</version>
+		</dependency>
+		
+		
+		<!--<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+			<version>4.1.31.Final</version>
+		</dependency>-->
+		
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.75</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${commons.lang3.version}</version>
 		</dependency>
 	</dependencies>
 	

@@ -54,6 +54,11 @@ public class QueueData<T> {
 	private T data;
 	
 	/**
+	 * 订阅主题
+	 */
+	private String tipoc;
+	
+	/**
 	 * 失败回调
 	 */
 	private ExecuteFailCallback failCallback;
