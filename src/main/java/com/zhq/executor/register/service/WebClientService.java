@@ -2,7 +2,8 @@ package com.zhq.executor.register.service;
 
 import com.alibaba.fastjson.JSON;
 import com.zhq.executor.loadbalance.filter.ExcutorLoadBalancedExchangeFilterFunction;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,9 +14,10 @@ import reactor.core.publisher.Mono;
  * @date: 2021/3/5
  * @version: 1.0.0
  */
-@Slf4j
 @Service
 public class WebClientService {
+	
+	private static final Logger log = LoggerFactory.getLogger(WebClientService.class);
 	
 	
 	public Mono<String> requestInvoke(String url, MultiValueMap<String, String> params) {

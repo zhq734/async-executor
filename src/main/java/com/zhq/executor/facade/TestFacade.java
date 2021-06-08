@@ -7,7 +7,8 @@ import com.zhq.executor.core.QueueExecutor;
 import com.zhq.executor.executor.DefaultQueueExecutor;
 import com.zhq.executor.util.TextFormat;
 import io.prometheus.client.CollectorRegistry;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,8 +32,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @RequestMapping
 @RestController
-@Slf4j
 public class TestFacade {
+	
+	private static final Logger log = LoggerFactory.getLogger(TestFacade.class);
 	
 	private static AtomicInteger count = new AtomicInteger(0);
 	

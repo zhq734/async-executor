@@ -3,7 +3,8 @@ package com.zhq.executor.loadbalance.model.impl;
 import com.zhq.executor.loadbalance.model.Response;
 import com.zhq.executor.loadbalance.model.ServiceInstance;
 import com.zhq.executor.loadbalance.model.ServiceInstanceListSupplier;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -15,8 +16,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @date: 2021/3/11
  * @version: 1.0.0
  */
-@Slf4j
 public class RandomServiceInstanceLoadBalancer {
+	
+	private static final Logger log = LoggerFactory.getLogger(RandomServiceInstanceLoadBalancer.class);
 	
 	private ServiceInstanceListSupplier supplier;
 	

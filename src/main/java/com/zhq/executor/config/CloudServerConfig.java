@@ -1,6 +1,5 @@
 package com.zhq.executor.config;
 
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Component;
  * @version: 1.0.0
  */
 @Component
-@Data
 public class CloudServerConfig {
 	
 	@Value("${executor.server.center.host:}")
@@ -23,4 +21,36 @@ public class CloudServerConfig {
 	private String localServiceId;
 	
 	
+	public String getServerHost() {
+		return serverHost;
+	}
+	
+	public void setServerHost(String serverHost) {
+		this.serverHost = serverHost;
+	}
+	
+	public int getLocalPort() {
+		return localPort;
+	}
+	
+	public void setLocalPort(int localPort) {
+		this.localPort = localPort;
+	}
+	
+	public String getLocalServiceId() {
+		return localServiceId;
+	}
+	
+	public void setLocalServiceId(String localServiceId) {
+		this.localServiceId = localServiceId;
+	}
+	
+	@Override
+	public String toString() {
+		return "CloudServerConfig{" +
+				"serverHost='" + serverHost + '\'' +
+				", localPort=" + localPort +
+				", localServiceId='" + localServiceId + '\'' +
+				'}';
+	}
 }

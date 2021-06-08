@@ -1,8 +1,5 @@
 package com.zhq.executor.core;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.Date;
 
 /**
@@ -10,8 +7,6 @@ import java.util.Date;
  * @date: 2019/9/5
  * @version: 1.0.0
  */
-@Data
-@NoArgsConstructor
 public class QueueData<T> {
 	
 	public static QueueData getInstance() {
@@ -71,4 +66,91 @@ public class QueueData<T> {
 		return true;
 	}
 	
+	
+	public boolean isHasRetry() {
+		return hasRetry;
+	}
+	
+	public void setHasRetry(boolean hasRetry) {
+		this.hasRetry = hasRetry;
+	}
+	
+	public int getRetryCount() {
+		return retryCount;
+	}
+	
+	public void setRetryCount(int retryCount) {
+		this.retryCount = retryCount;
+	}
+	
+	public int getCurrentRetryCount() {
+		return currentRetryCount;
+	}
+	
+	public void setCurrentRetryCount(int currentRetryCount) {
+		this.currentRetryCount = currentRetryCount;
+	}
+	
+	public Date getExecuteDate() {
+		return executeDate;
+	}
+	
+	public void setExecuteDate(Date executeDate) {
+		this.executeDate = executeDate;
+	}
+	
+	public String getCacheKey() {
+		return cacheKey;
+	}
+	
+	public void setCacheKey(String cacheKey) {
+		this.cacheKey = cacheKey;
+	}
+	
+	public Long getExpireTime() {
+		return expireTime;
+	}
+	
+	public void setExpireTime(Long expireTime) {
+		this.expireTime = expireTime;
+	}
+	
+	public T getData() {
+		return data;
+	}
+	
+	public void setData(T data) {
+		this.data = data;
+	}
+	
+	public String getTipoc() {
+		return tipoc;
+	}
+	
+	public void setTipoc(String tipoc) {
+		this.tipoc = tipoc;
+	}
+	
+	public ExecuteFailCallback getFailCallback() {
+		return failCallback;
+	}
+	
+	public void setFailCallback(ExecuteFailCallback failCallback) {
+		this.failCallback = failCallback;
+	}
+	
+	@Override
+	public String toString() {
+		return "QueueData{" +
+				"hasRetry=" + hasRetry +
+				", retryCount=" + retryCount +
+				", currentRetryCount=" + currentRetryCount +
+				", executeDate=" + executeDate +
+				", cacheKey='" + cacheKey + '\'' +
+				", expireTime=" + expireTime +
+				", data=" + data +
+				", tipoc='" + tipoc + '\'' +
+				", failCallback=" + failCallback +
+				'}';
+	}
 }

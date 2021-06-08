@@ -6,8 +6,9 @@ import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.google.common.primitives.UnsignedInteger;
 import com.zhq.executor.config.MetricsConfig;
 import com.zhq.executor.register.ServiceDiscovery;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.util.Collections;
@@ -22,8 +23,9 @@ import java.util.concurrent.TimeUnit;
  * @date: 2019/9/5
  * @version: 1.0.0
  */
-@Slf4j
 public class QueueContextManager {
+	
+	private static final Logger log = LoggerFactory.getLogger(QueueContextManager.class);
 	
 	private int concurrencyLevel = 4;
 	private int initialCapacity = 1000;

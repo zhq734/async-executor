@@ -2,8 +2,9 @@ package com.zhq.executor.consumer;
 
 import com.zhq.executor.core.QueueData;
 import com.zhq.executor.util.ExecutorSpringUtil;
-import lombok.extern.slf4j.Slf4j;
 import net.logstash.logback.encoder.org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,8 +18,9 @@ import java.util.stream.Collectors;
  * @date: 2021/2/2
  * @version: 1.0.0
  */
-@Slf4j
 public abstract class BaseInnerCommand {
+	
+	private static final Logger log = LoggerFactory.getLogger(BaseInnerCommand.class);
 	
 	private static final Map<String, Class> TOPIC_CLASS_MAP = new HashMap<>();
 	private static final Map<String, BlockingQueue> TOPIC_QUEUE_MAP = new HashMap<>();

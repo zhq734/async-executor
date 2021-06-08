@@ -1,6 +1,5 @@
 package com.zhq.executor.config;
 
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Component;
  * @date: 2019/9/6
  * @version: 1.0.0
  */
-@Data
 @Component
 public class QueueConfig {
 	
@@ -31,4 +29,37 @@ public class QueueConfig {
 	@Value("${queue.config.maxTimeout:10000}")
 	private int maxTimeout = 10000;
 	
+	
+	public int getThreadCount() {
+		return threadCount;
+	}
+	
+	public void setThreadCount(int threadCount) {
+		this.threadCount = threadCount;
+	}
+	
+	public int getMaxWaitLineCount() {
+		return maxWaitLineCount;
+	}
+	
+	public void setMaxWaitLineCount(int maxWaitLineCount) {
+		this.maxWaitLineCount = maxWaitLineCount;
+	}
+	
+	public int getMaxTimeout() {
+		return maxTimeout;
+	}
+	
+	public void setMaxTimeout(int maxTimeout) {
+		this.maxTimeout = maxTimeout;
+	}
+	
+	@Override
+	public String toString() {
+		return "QueueConfig{" +
+				"threadCount=" + threadCount +
+				", maxWaitLineCount=" + maxWaitLineCount +
+				", maxTimeout=" + maxTimeout +
+				'}';
+	}
 }

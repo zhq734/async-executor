@@ -4,7 +4,8 @@ import com.zhq.executor.loadbalance.ExcutorServiceInstanceListSuppler;
 import com.zhq.executor.loadbalance.LoadBalancerUriTools;
 import com.zhq.executor.loadbalance.model.ServiceInstance;
 import com.zhq.executor.loadbalance.model.impl.RandomServiceInstanceLoadBalancer;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -19,8 +20,9 @@ import java.net.URI;
  * @date: 2021/2/7
  * @version: 1.0.0
  */
-@Slf4j
 public class ExcutorLoadBalancedExchangeFilterFunction implements ExchangeFilterFunction {
+	
+	private static final Logger log = LoggerFactory.getLogger(ExcutorLoadBalancedExchangeFilterFunction.class);
 	
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest clientRequest, ExchangeFunction next) {

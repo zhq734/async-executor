@@ -2,8 +2,8 @@ package com.zhq.executor.register;
 
 import com.alibaba.fastjson.JSON;
 import com.zhq.executor.config.CloudServerConfig;
-import com.zhq.executor.consumer.DataConsumer;
 import com.zhq.executor.consumer.BaseInnerCommand;
+import com.zhq.executor.consumer.DataConsumer;
 import com.zhq.executor.core.QueueData;
 import com.zhq.executor.loadbalance.ServiceInstanceConfig;
 import com.zhq.executor.loadbalance.filter.ExcutorLoadBalancedExchangeFilterFunction;
@@ -12,8 +12,9 @@ import com.zhq.executor.register.model.ServiceInfo;
 import com.zhq.executor.register.service.WebClientService;
 import com.zhq.executor.util.ExpiryMap;
 import com.zhq.executor.util.NetworkUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -35,9 +36,10 @@ import java.util.stream.Collectors;
  * @date: 2021/2/5
  * @version: 1.0.0
  */
-@Slf4j
 @Component
 public class ServiceDiscovery {
+	
+	private static final Logger log = LoggerFactory.getLogger(ServiceDiscovery.class);
 	
 	@Resource
 	private CloudServerConfig cloudServerConfig;

@@ -1,6 +1,5 @@
 package com.zhq.executor.loadbalance;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,7 +14,6 @@ import java.util.List;
  */
 @Configuration
 @ConfigurationProperties(prefix = "spring.cloud.service", ignoreInvalidFields = true)
-@Data
 public class ServiceConfiguration {
 	
 	private List<ServiceInstanceInfo> instances = new ArrayList<>();
@@ -27,14 +25,34 @@ public class ServiceConfiguration {
 		});
 	}
 	
-	@Data
 	public static class ServiceInstanceInfo {
 		
 		private String name;
 		
 		private String servers;
 		
+		public String getName() {
+			return name;
+		}
+		
+		public void setName(String name) {
+			this.name = name;
+		}
+		
+		public String getServers() {
+			return servers;
+		}
+		
+		public void setServers(String servers) {
+			this.servers = servers;
+		}
 	}
-
-
+	
+	public List<ServiceInstanceInfo> getInstances() {
+		return instances;
+	}
+	
+	public void setInstances(List<ServiceInstanceInfo> instances) {
+		this.instances = instances;
+	}
 }

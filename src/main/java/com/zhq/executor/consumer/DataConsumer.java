@@ -8,9 +8,11 @@ import com.zhq.executor.core.QueueContext;
 import com.zhq.executor.core.QueueContextManager;
 import com.zhq.executor.core.QueueData;
 import com.zhq.executor.core.QueueExecutor;
+import com.zhq.executor.register.service.WebClientService;
 import com.zhq.executor.util.ExecutorThreadFactory;
 import com.zhq.executor.util.ExpiryMap;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
@@ -31,9 +33,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @date: 2019/9/5
  * @version: 1.0.0
  */
-@Slf4j
 @Component
 public class DataConsumer implements IConsumer {
+	
+	private static final Logger log = LoggerFactory.getLogger(DataConsumer.class);
 	
 	/**
 	 * 队列配置
