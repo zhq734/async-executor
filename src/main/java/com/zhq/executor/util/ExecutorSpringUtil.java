@@ -8,11 +8,17 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+
+/**
+ * @author: zhenghq
+ * @date: 2021/3/11
+ * @version: 1.0.0
+ */
 @Component
 public class ExecutorSpringUtil implements ApplicationContextAware, DisposableBean {
   
   private static ApplicationContext applicationContext;
-
+  
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
     if (ExecutorSpringUtil.applicationContext == null) {

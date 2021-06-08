@@ -45,7 +45,7 @@ public class DataConsumer implements IConsumer {
 		DataConsumer.queueConfig = queueConfig;
 	}
 	
-	private static final String _DEFAULT_TOPiC = "_default";
+	private static final String DEFAULT_TOPIC = "_default";
 	
 	/**
 	 * 清除的时候，进行加锁操作
@@ -89,7 +89,7 @@ public class DataConsumer implements IConsumer {
 						
 						linkedBlockingQueue.clear();
 						QueueContextManager.getInstance().clearContext();
-						MetricsConfig.outQueueCounter.labels(MetricsConfig.CLEAR_LABEL).inc(queueSize);
+						MetricsConfig.OUT_QUEUE_COUNTER.labels(MetricsConfig.CLEAR_LABEL).inc(queueSize);
 					} finally {
 						hasLock.set(false);
 					}
@@ -116,9 +116,9 @@ public class DataConsumer implements IConsumer {
 		}
 		UnsignedInteger seqNum = QueueContextManager.getInstance().addContext(queueData, queueCallback);
 		try {
-			runningMap.put(_DEFAULT_TOPiC, runningMap.getOrDefault(_DEFAULT_TOPiC, new AtomicBoolean(false)));
+			runningMap.put(DEFAULT_TOPIC, runningMap.getOrDefault(DEFAULT_TOPIC, new AtomicBoolean(false)));
 			blockingQueue.put(seqNum);
-			execute(_DEFAULT_TOPiC, blockingQueue);
+			execute(DEFAULT_TOPIC, blockingQueue);
 		} catch (InterruptedException e) {
 			log.error("DataConsumer addQueueData error: {}", e.getMessage(), e);
 		}
@@ -166,7 +166,7 @@ public class DataConsumer implements IConsumer {
 			}
 		}
 		try {
-			BlockingQueue blockingQueue = InnerCommand.getTopicQueue(topic);
+			BlockingQueue blockingQueue = BaseInnerCommand.getTopicQueue(topic);
 			if (blockingQueue == null) {
 				log.error("current topic not find Queue: {}", topic);
 				addQueueData(queueData, queueCallback);
@@ -215,7 +215,7 @@ public class DataConsumer implements IConsumer {
 					try {
 						queueContext = QueueContextManager.getInstance().getContext(seqNumInner);
 						if (Objects.isNull(queueContext)) {
-							MetricsConfig.outQueueCounter.labels(MetricsConfig.NOHANDLE_LABEL).inc();
+							MetricsConfig.OUT_QUEUE_COUNTER.labels(MetricsConfig.NOHANDLE_LABEL).inc();
 							return 0;
 						}
 						queueData = queueContext.getQueueData();
@@ -229,7 +229,7 @@ public class DataConsumer implements IConsumer {
 							if (Objects.nonNull(cacheKey) && expiryMap.get(cacheKey) != null
 									&& queueData.getCurrentRetryCount() == 0) {
 								log.info("The current operation time is still within the expiration time！no handle: {}", queueData);
-								MetricsConfig.outQueueCounter.labels(MetricsConfig.NOHANDLE_LABEL).inc();
+								MetricsConfig.OUT_QUEUE_COUNTER.labels(MetricsConfig.NOHANDLE_LABEL).inc();
 								return 0;
 							}
 							

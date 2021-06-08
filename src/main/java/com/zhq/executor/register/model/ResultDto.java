@@ -3,6 +3,11 @@ package com.zhq.executor.register.model;
 import java.io.Serializable;
 import java.util.Collections;
 
+/**
+ * @author: zhenghq
+ * @date: 2021/3/11
+ * @version: 1.0.0
+ */
 public class ResultDto implements Serializable {
     private static final long serialVersionUID = -1L;
 

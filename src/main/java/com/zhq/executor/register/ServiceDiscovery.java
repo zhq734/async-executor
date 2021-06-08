@@ -3,7 +3,7 @@ package com.zhq.executor.register;
 import com.alibaba.fastjson.JSON;
 import com.zhq.executor.config.CloudServerConfig;
 import com.zhq.executor.consumer.DataConsumer;
-import com.zhq.executor.consumer.InnerCommand;
+import com.zhq.executor.consumer.BaseInnerCommand;
 import com.zhq.executor.core.QueueData;
 import com.zhq.executor.loadbalance.ServiceInstanceConfig;
 import com.zhq.executor.loadbalance.filter.ExcutorLoadBalancedExchangeFilterFunction;
@@ -68,13 +68,14 @@ public class ServiceDiscovery {
 		
 		VirtualHttpServer server = new VirtualHttpServer(localPort);
 		server.start(new ServerInBoundHandler() {
+			@Override
 			public void handle(RequestHook requestHook, ResponseHook responseHook) {
 				String uri = requestHook.getUri();
 				Map<String, String> params = requestHook.getRequestParams();
 				/**
 				 * 处理心跳
 				 */
-				if (uri.equals("/executor/client/heartbeat")) {
+				if ("/executor/client/heartbeat".equals(uri)) {
 					log.debug("handle heartbeat msg: {}", JSON.toJSONString(params));
 					ServiceInfo serviceInfo = JSON.parseObject(JSON.toJSONString(params), ServiceInfo.class);
 				
@@ -92,12 +93,12 @@ public class ServiceDiscovery {
 				/**
 				 * 处理任务
 				 */
-				if (uri.equals("/executor/client/handleTask")) {
+				if ("/executor/client/handleTask".equals(uri)) {
 					log.debug("handle handleTask msg: {}", JSON.toJSONString(params));
 					String topic = params.get("topic");
 					String data = params.get("data");
 					
-					InnerCommand innerCommand = InnerCommand.getInstance(topic);
+					BaseInnerCommand innerCommand = BaseInnerCommand.getInstance(topic);
 					if (innerCommand != null) {
 						QueueData queueData = new QueueData();
 						queueData.setData(data);
@@ -158,7 +159,7 @@ public class ServiceDiscovery {
 			
 			String api = "/executor/client/heartbeat";
 			MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-			params.add("topic", StringUtils.join(InnerCommand.getTopicList(), ","));
+			params.add("topic", StringUtils.join(BaseInnerCommand.getTopicList(), ","));
 			params.add("host", NetworkUtil.getLocalHost());
 			params.add("port", localPort + "");
 			params.add("serviceId", cloudServerConfig.getLocalServiceId());
@@ -188,7 +189,7 @@ public class ServiceDiscovery {
 //		String url = "http://localhost:8088/version";
 		String url = "http://psh-smb/version";
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.add("topic", StringUtils.join(InnerCommand.getTopicList(), ","));
+		params.add("topic", StringUtils.join(BaseInnerCommand.getTopicList(), ","));
 		params.add("host", NetworkUtil.getLocalHost());
 		params.add("port", "20789");
 		params.add("serviceId", "test");

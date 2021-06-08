@@ -42,6 +42,7 @@ public class VirtualHttpServer {
 		b.group(this.bossGroup, this.workerGroup);
 		b.channel(NioServerSocketChannel.class);
 		((ServerBootstrap)b.childHandler(new ChannelInitializer<SocketChannel>() {
+			@Override
 			protected void initChannel(SocketChannel ch) throws Exception {
 				ChannelPipeline pipeline = ch.pipeline();
 				pipeline.addLast(new ChannelHandler[]{new HttpResponseEncoder()});
@@ -49,6 +50,7 @@ public class VirtualHttpServer {
 				pipeline.addLast(new ChannelHandler[]{new ChannelInboundHandlerAdapter() {
 					RequestHook requestHook;
 					
+					@Override
 					public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 						if (msg instanceof HttpRequest) {
 							this.requestHook = new RequestHook((HttpRequest)msg);
@@ -66,10 +68,12 @@ public class VirtualHttpServer {
 						}
 					}
 					
+					@Override
 					public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
 						ctx.flush();
 					}
 					
+					@Override
 					public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 						cause.printStackTrace();
 						ctx.close();
@@ -98,6 +102,7 @@ public class VirtualHttpServer {
 		int port = NetworkUtil.getVaildPort("localhost", 20790);
 		VirtualHttpServer server = new VirtualHttpServer(port);
 		server.start(new ServerInBoundHandler() {
+			@Override
 			public void handle(RequestHook requestHook, ResponseHook responseHook) {
 				System.out.println(requestHook.getMethod());
 				System.out.println(requestHook.getUri());

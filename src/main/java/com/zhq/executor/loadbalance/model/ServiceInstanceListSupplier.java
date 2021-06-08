@@ -11,9 +11,19 @@ import java.util.function.Supplier;
  * @version: 1.0.0
  */
 public interface ServiceInstanceListSupplier extends Supplier<Flux<List<ServiceInstance>>> {
-		String getServiceId();
-
-		default Flux<List<ServiceInstance>> get() {
+	
+	/**
+	 * 获取服务id
+	 * @return
+	 */
+	String getServiceId();
+	
+	/**
+	 * 获取服务列表
+	 * @return
+	 */
+	@Override
+	default Flux<List<ServiceInstance>> get() {
 			return (Flux)this.get();
 		}
 }

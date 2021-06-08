@@ -6,5 +6,11 @@ package com.zhq.executor.register;
  * @version: 1.0.0
  */
 public interface ServerInBoundHandler {
+	
+	/**
+	 * 执行
+	 * @param var1
+	 * @param var2
+	 */
 	void handle(RequestHook var1, ResponseHook var2);
 }

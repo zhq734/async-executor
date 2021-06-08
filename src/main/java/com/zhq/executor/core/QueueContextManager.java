@@ -100,7 +100,7 @@ public class QueueContextManager {
 					 * 这边后续通过策略方式走
 					 * 判断是否是抛弃还是执行
 					 */
-					MetricsConfig.outQueueCounter.labels(MetricsConfig.EXPIRE_LABEL).inc();
+					MetricsConfig.OUT_QUEUE_COUNTER.labels(MetricsConfig.EXPIRE_LABEL).inc();
 					executeContext(value);
 					break;
 				case SIZE:         // 由于缓存大小限制
@@ -160,12 +160,12 @@ public class QueueContextManager {
 		
 		if (Objects.nonNull(queueData)) {
 			if (Objects.nonNull(queueData.getCacheKey())) {
-				MetricsConfig.inQueueCounter.labels(queueData.getCacheKey()).inc();
+				MetricsConfig.IN_QUEUE_COUNTER.labels(queueData.getCacheKey()).inc();
 			} else {
-				MetricsConfig.inQueueCounter.labels(MetricsConfig.DEFAULT_LABEL).inc();
+				MetricsConfig.IN_QUEUE_COUNTER.labels(MetricsConfig.DEFAULT_LABEL).inc();
 			}
 		} else {
-			MetricsConfig.inQueueCounter.labels(MetricsConfig.DEFAULT_LABEL).inc();
+			MetricsConfig.IN_QUEUE_COUNTER.labels(MetricsConfig.DEFAULT_LABEL).inc();
 		}
 		
 		return seqNum;
@@ -213,12 +213,12 @@ public class QueueContextManager {
 					
 					String cacheKey = queueData.getCacheKey();
 					if (Objects.nonNull(cacheKey)) {
-						MetricsConfig.outQueueCounter.labels(cacheKey).inc();
+						MetricsConfig.OUT_QUEUE_COUNTER.labels(cacheKey).inc();
 					} else {
-						MetricsConfig.outQueueCounter.labels(MetricsConfig.DEFAULT_LABEL).inc();
+						MetricsConfig.OUT_QUEUE_COUNTER.labels(MetricsConfig.DEFAULT_LABEL).inc();
 					}
 				} else {
-					MetricsConfig.outQueueCounter.labels(MetricsConfig.DEFAULT_LABEL).inc();
+					MetricsConfig.OUT_QUEUE_COUNTER.labels(MetricsConfig.DEFAULT_LABEL).inc();
 				}
 				
 				/**
@@ -226,10 +226,10 @@ public class QueueContextManager {
 				 */
 				queueCallback.execute(queueData);
 			} else {
-				MetricsConfig.outQueueCounter.labels(MetricsConfig.NOHANDLE_LABEL).inc();
+				MetricsConfig.OUT_QUEUE_COUNTER.labels(MetricsConfig.NOHANDLE_LABEL).inc();
 			}
 		} else {
-			MetricsConfig.outQueueCounter.labels(MetricsConfig.NOHANDLE_LABEL).inc();
+			MetricsConfig.OUT_QUEUE_COUNTER.labels(MetricsConfig.NOHANDLE_LABEL).inc();
 		}
 		
 	}

@@ -7,6 +7,11 @@ package com.zhq.executor.core;
  */
 public interface ExecuteFailCallback {
 	
+	/**
+	 * 执行回调
+	 * @param queueData
+	 * @param e
+	 */
 	void callback(QueueData queueData, Exception e);
 	
 }

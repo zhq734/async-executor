@@ -18,22 +18,22 @@ import java.util.stream.Collectors;
  * @version: 1.0.0
  */
 @Slf4j
-public abstract class InnerCommand {
+public abstract class BaseInnerCommand {
 	
-	private static final Map<String, Class> topicClassMap = new HashMap<>();
-	private static final Map<String, BlockingQueue> topicQueueMap = new HashMap<>();
+	private static final Map<String, Class> TOPIC_CLASS_MAP = new HashMap<>();
+	private static final Map<String, BlockingQueue> TOPIC_QUEUE_MAP = new HashMap<>();
 	
 	private String topic;
 	
-	public InnerCommand(String topic, Class clz) {
+	public BaseInnerCommand(String topic, Class clz) {
 		if (StringUtils.isBlank(topic) || clz == null) return;
 		
 		topic = topic.toUpperCase();
-		if (!topicClassMap.containsKey(topic)) {
+		if (!TOPIC_CLASS_MAP.containsKey(topic)) {
 			if (clz.isInstance(this)) {
 				log.info("register innerCommand : msgType={}, clz={}", topic, clz.getSimpleName());
-				topicClassMap.put(topic, clz);
-				topicQueueMap.put(topic, new LinkedBlockingQueue());
+				TOPIC_CLASS_MAP.put(topic, clz);
+				TOPIC_QUEUE_MAP.put(topic, new LinkedBlockingQueue());
 				this.topic = topic;
 			} else {
 				throw new RuntimeException(String.format("this class: %s is not InnerCommand instance, mstType: %s",
@@ -41,10 +41,15 @@ public abstract class InnerCommand {
 			}
 		} else {
 			throw new RuntimeException(String.format("current topic [%s] has exist in class [%s], not repeat", topic,
-					topicClassMap.get(topic).getSimpleName()));
+					TOPIC_CLASS_MAP.get(topic).getSimpleName()));
 		}
 	}
 	
+	/**
+	 * 抽象调用方法
+	 * @param queueData
+	 * @return
+	 */
 	public abstract Object process(QueueData queueData);
 	
 	public void addQueueData(QueueData queueData) {
@@ -58,7 +63,7 @@ public abstract class InnerCommand {
 	 * @return
 	 */
 	public static List<String> getTopicList() {
-		return topicClassMap.keySet().stream().collect(Collectors.toList());
+		return TOPIC_CLASS_MAP.keySet().stream().collect(Collectors.toList());
 	}
 	
 	/**
@@ -67,7 +72,7 @@ public abstract class InnerCommand {
 	 * @return
 	 */
 	public static BlockingQueue getTopicQueue(String topic) {
-		return topicQueueMap.get(topic);
+		return TOPIC_QUEUE_MAP.get(topic);
 	}
 	
 	/**
@@ -75,13 +80,13 @@ public abstract class InnerCommand {
 	 * @param topic
 	 * @return
 	 */
-	public static InnerCommand getInstance(String topic) {
+	public static BaseInnerCommand getInstance(String topic) {
 		if (StringUtils.isBlank(topic)) return null;
 		
 		topic = topic.toUpperCase();
-		if (topicClassMap.containsKey(topic)) {
+		if (TOPIC_CLASS_MAP.containsKey(topic)) {
 			// 这边要从Spring容器中获取对象才行，不然Spring注入的对象无法成功注入
-			return (InnerCommand) ExecutorSpringUtil.getBean(topicClassMap.get(topic));
+			return (BaseInnerCommand) ExecutorSpringUtil.getBean(TOPIC_CLASS_MAP.get(topic));
 		}
 		
 		return null;

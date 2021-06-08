@@ -45,30 +45,37 @@ public class DefaultServiceInstance implements ServiceInstance {
 		return URI.create(uri);
 	}
 	
+	@Override
 	public URI getUri() {
 		return getUri(this);
 	}
 	
+	@Override
 	public Map<String, String> getMetadata() {
 		return this.metadata;
 	}
 	
+	@Override
 	public String getInstanceId() {
 		return this.instanceId;
 	}
 	
+	@Override
 	public String getServiceId() {
 		return this.serviceId;
 	}
 	
+	@Override
 	public String getHost() {
 		return this.host;
 	}
 	
+	@Override
 	public int getPort() {
 		return this.port;
 	}
 	
+	@Override
 	public boolean isSecure() {
 		return this.secure;
 	}
@@ -100,10 +107,12 @@ public class DefaultServiceInstance implements ServiceInstance {
 		
 	}
 	
+	@Override
 	public String toString() {
 		return "DefaultServiceInstance{instanceId='" + this.instanceId + '\'' + ", serviceId='" + this.serviceId + '\'' + ", host='" + this.host + '\'' + ", port=" + this.port + ", secure=" + this.secure + ", metadata=" + this.metadata + '}';
 	}
 	
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -115,6 +124,7 @@ public class DefaultServiceInstance implements ServiceInstance {
 		}
 	}
 	
+	@Override
 	public int hashCode() {
 		return Objects.hash(new Object[]{this.instanceId, this.serviceId, this.host, this.port, this.secure, this.metadata});
 	}

@@ -8,6 +8,9 @@ package com.zhq.executor.consumer;
  */
 public interface IConsumer /*extends Runnable*/ {
 	
+	/**
+	 * 初始化方法
+	 */
 	void init();
 	
 }

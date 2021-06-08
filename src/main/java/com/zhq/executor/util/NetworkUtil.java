@@ -36,8 +36,8 @@ public class NetworkUtil {
 	 */
 	public static boolean isPortUsing(String host, int port) throws UnknownHostException{
 		boolean flag = false;
-		InetAddress Address = InetAddress.getByName(host);
-		try(Socket socket = new Socket(Address, port);) {
+		InetAddress address = InetAddress.getByName(host);
+		try(Socket socket = new Socket(address, port);) {
 			//建立一个Socket连接
 			flag = true;
 		} catch (IOException e) {

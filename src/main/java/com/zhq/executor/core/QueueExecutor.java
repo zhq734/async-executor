@@ -7,6 +7,10 @@ package com.zhq.executor.core;
  */
 public interface QueueExecutor {
 	
+	/**
+	 * 执行
+	 * @param queueData
+	 */
 	void execute(QueueData queueData);
 	
 }

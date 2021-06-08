@@ -15,7 +15,7 @@ public interface MetricsConfig {
 	String CLEAR_LABEL = "_clear";
 	String RETRY_LABEL = "_retry";
 	
-	Counter inQueueCounter = Counter.build().name("in_queue_count").help("当前进队列数据").labelNames("in").register();
-	Counter outQueueCounter = Counter.build().name("out_queue_count").help("当前执行数").labelNames("out").register();
+	Counter IN_QUEUE_COUNTER = Counter.build().name("in_queue_count").help("当前进队列数据").labelNames("in").register();
+	Counter OUT_QUEUE_COUNTER = Counter.build().name("out_queue_count").help("当前执行数").labelNames("out").register();
 	
 }

@@ -12,10 +12,12 @@ public class EmptyResponse implements Response<ServiceInstance> {
 	public EmptyResponse() {
 	}
 	
+	@Override
 	public boolean hasServer() {
 		return false;
 	}
 	
+	@Override
 	public ServiceInstance getServer() {
 		return null;
 	}

@@ -20,7 +20,7 @@ public class ExpiryMap<K, V> extends HashMap<K, V> {
 	/**
 	 * default expiry time 2m
 	 */
-	private long EXPIRY = 1000 * 60 * 2;
+	private long expiry = 1000 * 60 * 2;
 	
 	private HashMap<K, Long> expiryMap = new HashMap<>();
 	
@@ -34,14 +34,16 @@ public class ExpiryMap<K, V> extends HashMap<K, V> {
 	
 	public ExpiryMap(int initialCapacity, long defaultExpiryTime) {
 		super(initialCapacity);
-		this.EXPIRY = defaultExpiryTime;
+		this.expiry = defaultExpiryTime;
 	}
 	
+	@Override
 	public V put(K key, V value) {
-		expiryMap.put(key, System.currentTimeMillis() + EXPIRY);
+		expiryMap.put(key, System.currentTimeMillis() + expiry);
 		return super.put(key, value);
 	}
 	
+	@Override
 	public boolean containsKey(Object key) {
 		return !checkExpiry(key, true) && super.containsKey(key);
 	}
@@ -57,14 +59,17 @@ public class ExpiryMap<K, V> extends HashMap<K, V> {
 		return super.put(key, value);
 	}
 	
+	@Override
 	public int size() {
 		return entrySet().size();
 	}
 	
+	@Override
 	public boolean isEmpty() {
 		return entrySet().size() == 0;
 	}
 	
+	@Override
 	public boolean containsValue(Object value) {
 		if (value == null) return Boolean.FALSE;
 		Set<Entry<K, V>> set = super.entrySet();
@@ -81,6 +86,7 @@ public class ExpiryMap<K, V> extends HashMap<K, V> {
 		return Boolean.FALSE;
 	}
 	
+	@Override
 	public Collection<V> values() {
 		
 		Collection<V> values = super.values();
@@ -96,6 +102,7 @@ public class ExpiryMap<K, V> extends HashMap<K, V> {
 		return values;
 	}
 	
+	@Override
 	public V get(Object key) {
 		if (key == null)
 			return null;
@@ -127,12 +134,14 @@ public class ExpiryMap<K, V> extends HashMap<K, V> {
 		return super.get(key);
 	}
 	
+	@Override
 	public void putAll(Map<? extends K, ? extends V> m) {
 		for (Entry<? extends K, ? extends V> e : m.entrySet())
-			expiryMap.put(e.getKey(), System.currentTimeMillis() + EXPIRY);
+			expiryMap.put(e.getKey(), System.currentTimeMillis() + expiry);
 		super.putAll(m);
 	}
 	
+	@Override
 	public Set<Entry<K, V>> entrySet() {
 		Set<Entry<K, V>> set = super.entrySet();
 		Iterator<Entry<K, V>> iterator = set.iterator();

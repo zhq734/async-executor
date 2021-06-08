@@ -45,11 +45,11 @@ public class RequestHook {
 	}
 	
 	public HttpMethod getMethod() {
-		return this.request.getMethod();
+		return this.request.method();
 	}
 	
 	public String getUri() {
-		return this.request.getUri().split("\\?")[0];
+		return this.request.uri().split("\\?")[0];
 	}
 	
 	private HttpHeaders getHeaders() {
@@ -73,7 +73,7 @@ public class RequestHook {
 		if (this.queryParams != null) {
 			return this.queryParams;
 		} else {
-			this.queryParams = (new QueryStringDecoder(this.request.getUri(), Charset.defaultCharset())).parameters();
+			this.queryParams = (new QueryStringDecoder(this.request.uri(), Charset.defaultCharset())).parameters();
 			return this.queryParams;
 		}
 	}
@@ -115,10 +115,10 @@ public class RequestHook {
 	
 	public Map<String, String> getBodyAsStringedPostParams() {
 		Map<String, String> params = new HashMap();
-		Iterator i$ = this.decoder.getBodyHttpDatas().iterator();
+		Iterator iterator = this.decoder.getBodyHttpDatas().iterator();
 		
-		while(i$.hasNext()) {
-			InterfaceHttpData data = (InterfaceHttpData)i$.next();
+		while(iterator.hasNext()) {
+			InterfaceHttpData data = (InterfaceHttpData)iterator.next();
 			if (data.getHttpDataType() == InterfaceHttpData.HttpDataType.Attribute) {
 				Attribute attr = (Attribute)data;
 				
